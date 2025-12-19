@@ -15,6 +15,10 @@
 	],
 	"Plugins": [
 		{
+			"Name": "StructUtils",
+			"Enabled": true
+		},
+		{
 			"Name": "SkeletalMerging",
 			"Enabled": true
 		},
