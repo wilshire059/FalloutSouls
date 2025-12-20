@@ -15,6 +15,8 @@
 #include "DataAssets/PDA_MovementSpeedData.h"
 #include "B_BaseCharacter.generated.h"
 
+class UPDA_Item;
+
 // Movement/Lerp Delegates
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLocationLerpEnd);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRotationLerpEnd);
@@ -154,10 +156,7 @@ public:
     // HITSTOP FUNCTIONS
     //========================================
 
-    UFUNCTION(BlueprintCallable, Category = "Combat|Hitstop")
-    void StartHitstop(float Duration);
 
-    UFUNCTION(BlueprintCallable, Category = "Combat|Hitstop")
     void StopHitstop();
 
     //========================================
@@ -240,4 +239,17 @@ public:
     virtual void StopActiveMontage_Implementation(double BlendOutDuration) override;
     virtual UAnimInstance* GetSoulslikeAnimInstance_Implementation() override;
     virtual void OpenDoor_Implementation(UAnimMontage* Montage, AB_Door* Door) override;
+    virtual void PlayMontageReplicated_Implementation(UAnimMontage* Montage, float PlayRate, float StartPosition, FName StartSection) override;
+    virtual void PlaySoftMontageReplicated_Implementation(const TSoftObjectPtr<UAnimMontage>& Montage, float PlayRate, float StartPosition, FName StartSection, bool bPriority) override;
+    virtual void PlaySoftNiagaraLoopingReplicated_Implementation(const TSoftObjectPtr<UNiagaraSystem>& VFXSystem, FName AttachSocket, FVector Location, FRotator Rotation, bool bAutoDestroy, bool bAutoActivate, bool bPreCullCheck, double DurationValue) override;
+    virtual void PlaySoftNiagaraOneshotReplicated_Implementation(const TSoftObjectPtr<UNiagaraSystem>& VFXSystem, FName AttachSocket, FVector Location, FRotator Rotation, bool bAutoDestroy, bool bAutoActivate, bool bPreCullCheck) override;
+    virtual void ToggleGuardReplicated_Implementation(bool bToggled, bool bIgnoreGracePeriod) override;
+    virtual void StartCameraShake_Implementation(TSubclassOf<UCameraShakeBase> Shake, double Scale) override;
+    virtual void StartHitstop_Implementation(double Duration) override;
+    virtual void PlayPrioMontageReplicated_Implementation(UAnimMontage* Montage, double PlayRate, double StartPosition, FName StartSection) override;
+    virtual void SpawnSoftActorReplicated_Implementation(const TSoftClassPtr<AActor>& ActorClass, FTransform Transform, ESpawnActorCollisionHandlingMethod CollisionMethod, AActor* ActorOwner, APawn* InstigatorPawn) override;
+    virtual void JumpReplicated_Implementation() override;
+    virtual void SetSpeedReplicated_Implementation(double NewSpeed) override;
+    virtual UAC_StatManager* GetStatManager_Implementation() override;
+    virtual void SpawnPickupItemReplicated_Implementation(UPDA_Item* ItemAsset, int32 ItemAmount, FTransform Transform, ESpawnActorCollisionHandlingMethod CollisionMethod, bool bUsePhysics) override;
 };

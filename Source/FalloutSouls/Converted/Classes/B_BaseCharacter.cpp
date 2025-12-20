@@ -203,22 +203,6 @@ void AB_BaseCharacter::Jump_Custom()
 // HITSTOP FUNCTIONS
 //========================================
 
-void AB_BaseCharacter::StartHitstop(float Duration)
-{
-	if (bIsInHitstop) return;
-
-	bIsInHitstop = true;
-	CustomTimeDilation = 0.0001f; // Nearly frozen
-
-	// Set timer to end hitstop
-	GetWorld()->GetTimerManager().SetTimer(
-		HitstopTimerHandle,
-		this,
-		&AB_BaseCharacter::StopHitstop,
-		Duration,
-		false
-	);
-}
 
 void AB_BaseCharacter::StopHitstop()
 {
@@ -553,4 +537,140 @@ void AB_BaseCharacter::OpenDoor_Implementation(UAnimMontage* Montage, AB_Door* D
 	{
 		PlayAnimMontage(Montage);
 	}
+}
+
+void AB_BaseCharacter::PlayMontageReplicated_Implementation(UAnimMontage* Montage, float PlayRate, float StartPosition, FName StartSection)
+{
+	if (Montage)
+	{
+		PlayAnimMontage(Montage, PlayRate, StartSection);
+	}
+}
+
+void AB_BaseCharacter::PlaySoftMontageReplicated_Implementation(const TSoftObjectPtr<UAnimMontage>& Montage, float PlayRate, float StartPosition, FName StartSection, bool bPriority)
+{
+	if (!Montage.IsNull())
+	{
+		if (UAnimMontage* LoadedMontage = Montage.LoadSynchronous())
+		{
+			PlayAnimMontage(LoadedMontage, PlayRate, StartSection);
+		}
+	}
+}
+
+void AB_BaseCharacter::PlaySoftNiagaraLoopingReplicated_Implementation(const TSoftObjectPtr<UNiagaraSystem>& VFXSystem, FName AttachSocket, FVector Location, FRotator Rotation, bool bAutoDestroy, bool bAutoActivate, bool bPreCullCheck, double DurationValue)
+{
+	if (!VFXSystem.IsNull())
+	{
+		if (UNiagaraSystem* LoadedSystem = VFXSystem.LoadSynchronous())
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAttached(
+				LoadedSystem,
+				GetMesh(),
+				AttachSocket,
+				Location,
+				Rotation,
+				EAttachLocation::SnapToTarget,
+				bAutoDestroy,
+				bAutoActivate,
+				ENCPoolMethod::None,
+				bPreCullCheck
+			);
+		}
+	}
+}
+
+void AB_BaseCharacter::PlaySoftNiagaraOneshotReplicated_Implementation(const TSoftObjectPtr<UNiagaraSystem>& VFXSystem, FName AttachSocket, FVector Location, FRotator Rotation, bool bAutoDestroy, bool bAutoActivate, bool bPreCullCheck)
+{
+	if (!VFXSystem.IsNull())
+	{
+		if (UNiagaraSystem* LoadedSystem = VFXSystem.LoadSynchronous())
+		{
+			UNiagaraFunctionLibrary::SpawnSystemAttached(
+				LoadedSystem,
+				GetMesh(),
+				AttachSocket,
+				Location,
+				Rotation,
+				EAttachLocation::SnapToTarget,
+				bAutoDestroy,
+				bAutoActivate,
+				ENCPoolMethod::None,
+				bPreCullCheck
+			);
+		}
+	}
+}
+
+void AB_BaseCharacter::ToggleGuardReplicated_Implementation(bool bToggled, bool bIgnoreGracePeriod)
+{
+	// Guard implementation - delegate to combat manager if available
+	if (CombatManager)
+	{
+		// CombatManager->SetGuarding(bToggled, bIgnoreGracePeriod);
+	}
+}
+
+void AB_BaseCharacter::StartCameraShake_Implementation(TSubclassOf<UCameraShakeBase> Shake, double Scale)
+{
+	if (APlayerController* PC = Cast<APlayerController>(GetController()))
+	{
+		PC->ClientStartCameraShake(Shake, Scale);
+	}
+}
+
+void AB_BaseCharacter::StartHitstop_Implementation(double Duration)
+{
+	bIsInHitstop = true;
+	GetWorld()->GetTimerManager().SetTimer(HitstopTimerHandle, this, &AB_BaseCharacter::StopHitstop, Duration, false);
+	CustomTimeDilation = 0.0001f;
+}
+
+void AB_BaseCharacter::PlayPrioMontageReplicated_Implementation(UAnimMontage* Montage, double PlayRate, double StartPosition, FName StartSection)
+{
+	if (Montage)
+	{
+		// Stop any current montage and play the priority one
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			AnimInstance->Montage_Stop(0.0f);
+		}
+		PlayAnimMontage(Montage, PlayRate, StartSection);
+	}
+}
+
+void AB_BaseCharacter::SpawnSoftActorReplicated_Implementation(const TSoftClassPtr<AActor>& ActorClass, FTransform Transform, ESpawnActorCollisionHandlingMethod CollisionMethod, AActor* ActorOwner, APawn* InstigatorPawn)
+{
+	if (!ActorClass.IsNull())
+	{
+		if (UClass* LoadedClass = ActorClass.LoadSynchronous())
+		{
+			FActorSpawnParameters SpawnParams;
+			SpawnParams.SpawnCollisionHandlingOverride = CollisionMethod;
+			SpawnParams.Owner = ActorOwner;
+			SpawnParams.Instigator = InstigatorPawn;
+			GetWorld()->SpawnActor<AActor>(LoadedClass, Transform, SpawnParams);
+		}
+	}
+}
+
+void AB_BaseCharacter::JumpReplicated_Implementation()
+{
+	Jump();
+}
+
+void AB_BaseCharacter::SetSpeedReplicated_Implementation(double NewSpeed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+}
+
+UAC_StatManager* AB_BaseCharacter::GetStatManager_Implementation()
+{
+	return StatManager;
+}
+
+void AB_BaseCharacter::SpawnPickupItemReplicated_Implementation(UPDA_Item* ItemAsset, int32 ItemAmount, FTransform Transform, ESpawnActorCollisionHandlingMethod CollisionMethod, bool bUsePhysics)
+{
+	// Pickup item spawning - typically handled by inventory/item system
+	// This is a stub that can be extended based on the item spawning logic
 }

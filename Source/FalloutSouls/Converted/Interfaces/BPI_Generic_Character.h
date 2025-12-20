@@ -13,6 +13,9 @@
 #include "E_MovementType.h"
 #include "BPI_Generic_Character.generated.h"
 
+class UPDA_Item;
+class UAC_StatManager;
+
 UINTERFACE(MinimalAPI)
 class UBPI_Generic_Character : public UInterface
 {
@@ -89,4 +92,38 @@ public:
 
     UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
     void PlaySoftMontageReplicated(const TSoftObjectPtr<UAnimMontage>& Montage, float PlayRate, float StartPosition, FName StartSection, bool bPriority);
+
+    // Additional functions from Blueprint
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void PlaySoftNiagaraLoopingReplicated(const TSoftObjectPtr<UNiagaraSystem>& VFXSystem, FName AttachSocket, FVector Location, FRotator Rotation, bool bAutoDestroy, bool bAutoActivate, bool bPreCullCheck, double DurationValue);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void PlaySoftNiagaraOneshotReplicated(const TSoftObjectPtr<UNiagaraSystem>& VFXSystem, FName AttachSocket, FVector Location, FRotator Rotation, bool bAutoDestroy, bool bAutoActivate, bool bPreCullCheck);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void ToggleGuardReplicated(bool bToggled, bool bIgnoreGracePeriod);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void StartCameraShake(TSubclassOf<UCameraShakeBase> Shake, double Scale);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void StartHitstop(double Duration);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void PlayPrioMontageReplicated(UAnimMontage* Montage, double PlayRate, double StartPosition, FName StartSection);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void SpawnSoftActorReplicated(const TSoftClassPtr<AActor>& ActorClass, FTransform Transform, ESpawnActorCollisionHandlingMethod CollisionMethod, AActor* ActorOwner, APawn* InstigatorPawn);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void JumpReplicated();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void SetSpeedReplicated(double NewSpeed);
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    UAC_StatManager* GetStatManager();
+
+    UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Generic Character")
+    void SpawnPickupItemReplicated(UPDA_Item* ItemAsset, int32 ItemAmount, FTransform Transform, ESpawnActorCollisionHandlingMethod CollisionMethod, bool bUsePhysics);
 };
