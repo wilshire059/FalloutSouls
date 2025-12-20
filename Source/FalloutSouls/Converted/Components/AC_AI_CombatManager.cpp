@@ -5,6 +5,7 @@
 #include "GameFramework/Controller.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/AC_InventoryManager.h"
+#include "Classes/B_Stat.h"
 #include "Interfaces/BPI_Enemy.h"
 #include "Interfaces/BPI_Controller.h"
 
@@ -78,14 +79,15 @@ void UAC_AI_CombatManager::EndEncounter()
 
 UObject* UAC_AI_CombatManager::TryGetAbility()
 {
-    // Stub implementation - returns nullptr
-    // Override in BP or extend to select abilities
+    // Base implementation returns nullptr
+    // Subclasses or Blueprints should override to select abilities from ability pool
     return nullptr;
 }
 
 bool UAC_AI_CombatManager::ExecuteAbility(UObject* Ability)
 {
-    // Stub implementation
+    // Base implementation validates ability and returns success
+    // Subclasses should override with actual ability execution logic
     if (!Ability)
     {
         return false;
@@ -152,6 +154,38 @@ UAC_InventoryManager* UAC_AI_CombatManager::GetInventoryComponent() const
     if (Owner)
     {
         return Owner->FindComponentByClass<UAC_InventoryManager>();
+    }
+    return nullptr;
+}
+
+TArray<FStatInfo> UAC_AI_CombatManager::GetAllStats() const
+{
+    TArray<FStatInfo> AllStats;
+
+    for (const auto& StatPair : ActiveStats)
+    {
+        if (UB_Stat* Stat = StatPair.Value)
+        {
+            FStatInfo Info;
+            Info.Tag = StatPair.Key;
+            Info.Value = Stat->CurrentValue;
+            Info.MaxValue = Stat->MaxValue;
+            AllStats.Add(Info);
+        }
+    }
+
+    return AllStats;
+}
+
+UAnimInstance* UAC_AI_CombatManager::GetSoulslikeAnimInstance() const
+{
+    AActor* Owner = GetOwner();
+    if (ACharacter* Character = Cast<ACharacter>(Owner))
+    {
+        if (USkeletalMeshComponent* MeshComp = Character->GetMesh())
+        {
+            return MeshComp->GetAnimInstance();
+        }
     }
     return nullptr;
 }

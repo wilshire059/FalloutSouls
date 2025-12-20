@@ -42,7 +42,9 @@ public class FalloutSouls : ModuleRules
 			"PhysicsCore",
 			"EngineCameras",
 			"StructUtils",
-			"LevelSequence"
+			"LevelSequence",
+			"MovieScene",
+			"FieldSystemEngine"
 		});
 
 		// Editor-only modules (Blutility for Editor Utility Widgets)
